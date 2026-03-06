@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histology Mind Map Designer</title>
+    <!-- Library for high-quality image export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Initial Purpose Lightbox -->
+<div class="splash-overlay" id="splash-screen">
+    <div class="splash-card">
+        <h2>Histology Mind Map Designer</h2>
+        <p>The Histology Mind Map Designer allows students to visually organize and study tissue types through an interactive concept‑mapping interface.</p>
+        <p>Use this tool to:</p>
+        <ul>
+            <li>Add nodes for different tissues</li>
+            <li>Edit each node with descriptions and microscope images</li>
+            <li>Drag and connect related concepts</li>
+            <li>Rearrange nodes freely</li>
+            <li>Export the final map as a High-Quality Image for study</li>
+        </ul>
+        <button class="btn btn-primary" style="width: 100%; padding: 1rem; justify-content: center;" onclick="closeSplash()">Start Designing</button>
+    </div>
+</div>
+
+<header>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="btn btn-ghost" onclick="toggleSidebar()">☰ Instructions</button>
+        <h1>Histology Mind Map Designer</h1>
+    </div>
+    <button class="btn btn-outline" onclick="exportAsImage()">Export as Image (PNG)</button>
+</header>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <h2>Manual</h2>
+        <button class="btn btn-ghost" onclick="toggleSidebar()">✕</button>
+    </div>
+    <div class="sidebar-content">
+        <h3>Workflow</h3>
+        <ul>
+            <li><strong>Add Node:</strong> Use Quick Suggest or + Add Node.</li>
+            <li><strong>Edit:</strong> Double-click any node to add text/images.</li>
+            <li><strong>Link:</strong> Click Link Nodes, click start node, then end node.</li>
+            <li><strong>Delete:</strong> Click the red dot on a line or X on a node.</li>
+        </ul>
+        <h3>Keyboard</h3>
+        <ul>
+            <li><kbd class="kbd-key">Tab</kbd> Cycle Nodes</li>
+            <li><kbd class="kbd-key">Arrows</kbd> Move Node</li>
+            <li><kbd class="kbd-key">Enter</kbd> Open Editor</li>
+            <li><kbd class="kbd-key">Del</kbd> Delete Node</li>
+        </ul>
+    </div>
+</aside>
+
+<div class="layout">
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="openModal()">+ Add Node</button>
+        <button class="btn btn-link" id="link-btn" onclick="toggleLinkMode()">🔗 Link Nodes</button>
+        <div id="link-status" class="status-badge" aria-live="polite"></div>
+
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+            <label style="font-size: 0.8rem; font-weight: 800;">Quick Suggest:</label>
+            <select id="suggestion-menu" class="prominent-select" onchange="addFromMenu(this.value)">
+                <option value="">-- Choose a Tissue --</option>
+                <optgroup label="Main Categories">
+                    <option value="Epithelial Tissue">Epithelial Tissue</option>
+                    <option value="Connective Tissue">Connective Tissue</option>
+                    <option value="Muscle Tissue">Muscle Tissue</option>
+                    <option value="Neural Tissue">Neural Tissue</option>
+                </optgroup>
+                <optgroup label="Connective Tissue Types">
+                    <option value="Connective Tissue Proper">Connective Tissue Proper</option>
+                    <option value="Fluid Connective Tissues">Fluid Connective Tissues</option>
+                    <option value="Supporting Connective Tissues">Supporting Connective Tissues</option>
+                    <option value="Loose Connective Tissue">Loose Connective Tissue</option>
+                    <option value="Dense Connective Tissue">Dense Connective Tissue</option>
+                    <option value="Areolar Tissue">Areolar Tissue</option>
+                    <option value="Adipose Tissue">Adipose Tissue</option>
+                    <option value="Reticular Tissue">Reticular Tissue</option>
+                    <option value="Dense Regular Connective">Dense Regular Connective</option>
+                    <option value="Dense Irregular Connective">Dense Irregular Connective</option>
+                    <option value="Elastic Connective">Elastic Connective</option>
+                    <option value="Blood">Blood</option>
+                    <option value="Lymph">Lymph</option>
+                    <option value="Cartilage">Cartilage</option>
+                    <option value="Bone">Bone</option>
+                    <option value="Hyaline Cartilage">Hyaline Cartilage</option>
+                    <option value="Elastic Cartilage">Elastic Cartilage</option>
+                    <option value="Fibrous Cartilage">Fibrous Cartilage</option>
+                </optgroup>
+                <optgroup label="Epithelial Subtypes">
+                    <option value="Simple Squamous Epithelium">Simple Squamous Epithelium</option>
+                    <option value="Simple Cuboidal Epithelium">Simple Cuboidal Epithelium</option>
+                    <option value="Simple Columnar Epithelium">Simple Columnar Epithelium</option>
+                    <option value="Stratified Squamous Epithelium">Stratified Squamous Epithelium</option>
+                    <option value="Stratified Cuboidal Epithelium">Stratified Cuboidal Epithelium</option>
+                    <option value="Stratified Columnar Epithelium">Stratified Columnar Epithelium</option>
+                    <option value="Pseudostratified Columnar Epithelium">Pseudostratified Columnar Epithelium</option>
+                    <option value="Transitional Epithelium">Transitional Epithelium</option>
+                </optgroup>
+                <optgroup label="Muscle & Neural Subtypes">
+                    <option value="Skeletal Muscle">Skeletal Muscle</option>
+                    <option value="Cardiac Muscle">Cardiac Muscle</option>
+                    <option value="Smooth Muscle">Smooth Muscle</option>
+                    <option value="Neurons">Neurons</option>
+                    <option value="Neuroglia">Neuroglia</option>
+                </optgroup>
+            </select>
+        </div>
+    </div>
+
+    <div class="viewport" id="viewport">
+        <div id="canvas">
+            <svg class="svg-layer" id="svg-canvas"></svg>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <h2 style="margin-top:0; color: var(--primary); font-size: 1.1rem;">Node Editor</h2>
+        <input type="hidden" id="edit-id">
+        <div class="form-group">
+            <label for="node-name">Tissue Label</label>
+            <input type="text" id="node-name">
+        </div>
+        <div class="form-group">
+            <label for="node-desc">Characteristics</label>
+            <textarea id="node-desc" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="node-file">Tissue Image</label>
+            <input type="file" id="node-file" accept="image/*" onchange="processFile(this)">
+            <input type="hidden" id="node-img-data">
+        </div>
+        <div class="form-group">
+            <label for="node-alt">Image Alt Text (Accessibility)</label>
+            <input type="text" id="node-alt" placeholder="Describe the image content...">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 1rem;">
+            <button class="btn btn-primary" onclick="saveNode()">Save</button>
+            <button class="btn btn-outline" style="color:var(--text); border-color:var(--border);" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
